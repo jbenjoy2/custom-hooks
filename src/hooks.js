@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const useFlip = () => {
@@ -9,8 +9,8 @@ const useFlip = () => {
 	return [ state, toggleState ];
 };
 
-const useAxios = (baseUrl) => {
-	const [ responses, setResponses ] = useState([]);
+const useAxios = (storageKey, baseUrl) => {
+	const [ responses, setResponses ] = useLocalStorageState(storageKey);
 
 	const addData = async (formatter = (data) => data, endpoint = '') => {
 		const resp = await axios.get(`${baseUrl}${endpoint}`);
@@ -22,4 +22,25 @@ const useAxios = (baseUrl) => {
 
 	return [ responses, addData, removeData ];
 };
-export { useFlip, useAxios };
+
+const useLocalStorageState = (keyName, defaultValue = []) => {
+	const [ state, setState ] = useState(() => {
+		try {
+			const item = window.localStorage.getItem(keyName);
+
+			return item ? JSON.parse(item) : defaultValue;
+		} catch (err) {
+			console.error(err);
+			return defaultValue;
+		}
+	});
+
+	useEffect(
+		() => {
+			window.localStorage.setItem(keyName, JSON.stringify(state));
+		},
+		[ keyName, state ]
+	);
+	return [ state, setState ];
+};
+export { useFlip, useAxios, useLocalStorageState };
