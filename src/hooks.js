@@ -18,6 +18,8 @@ const useAxios = (baseUrl) => {
 		setResponses((response) => [ ...response, { ...resp.data, id: uuid() } ]);
 	};
 
-	return [ responses, addData ];
+	const removeData = () => setResponses([]);
+
+	return [ responses, addData, removeData ];
 };
 export { useFlip, useAxios };
